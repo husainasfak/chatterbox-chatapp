@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String               @id @default(uuid())
+  userName     String               @unique
+  imageUrl     String
+  password     String
+  lastActive   DateTime             @default(now())
+  participants PrivateParticipant[]
+
+  sentMessages     PrivateMessage[] @relation("MessageSender")
+  receivedMessages PrivateMessage[] @relation("MessageReceiver")
+  // deletedBy        PrivateMessage[] @relation("deletedBy")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  initiatorPrivateConversation PrivateConversation[] @relation("initiator")
+  recipientPrivateConversation PrivateConversation[] @relation("recipient")
+
+  @@map("users")
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+model PrivateConversation {
+  id           String               @id @default(uuid())
+  participants PrivateParticipant[]
+  messages     PrivateMessage[]
+  initiator    User                 @relation("initiator", fields: [initiatorId], references: [id])
+  initiatorId  String
+  recipient    User                 @relation("recipient", fields: [recipientId], references: [id])
+  recipientId  String
+  status       RequestStatus        @default(PENDING)
+  createdAt    DateTime             @default(now()) @map("created_at")
+  updatedAt    DateTime             @updatedAt @map("updated_at")
+
+  @@unique([initiatorId, recipientId])
+  @@map("private_conversation")
+}
+
+model PrivateParticipant {
+  id                   String              @id @default(uuid())
+  user                 User                @relation(fields: [userId], references: [id])
+  userId               String
+  conversation         PrivateConversation @relation(fields: [conversationId], references: [id])
+  conversationId       String
+  hasSeenLatestMessage Boolean             @default(false)
+  createdAt            DateTime            @default(now()) @map("created_at")
+  updatedAt            DateTime            @updatedAt @map("updated_at")
+
+  @@unique([userId, conversationId])
+  @@index([conversationId])
+  @@index([userId])
+  @@map("private_participant")
+}
+
+model PrivateMessage {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  fileUrl   String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  isDeleted Boolean  @default(false)
+
+  conversation   PrivateConversation @relation(fields: [conversationId], references: [id])
+  conversationId String
+
+  sender     User   @relation("MessageSender", fields: [senderId], references: [id])
+  senderId   String
+  receiver   User   @relation("MessageReceiver", fields: [receiverId], references: [id])
+  receiverId String
+
+  // deletedBy   User?   @relation("deletedBy", fields: [deletedById], references: [id])
+  // deletedById String?
+
+  @@index([conversationId])
+  @@index([createdAt])
+  @@map("private_message")
+}
+
+enum ParticipantRole {
+  ADMIN
+  MODERATOR
+  GUEST
+}
