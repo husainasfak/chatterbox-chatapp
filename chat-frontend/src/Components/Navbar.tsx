@@ -19,8 +19,8 @@ const Navbar = () => {
 
                <div className="flex">
                     <AvatarGroup>
-                         {connectedUser && connectedUser?.map((user: User) =>
-                              <Avatar src={user?.imageUrl} />
+                         {connectedUser && connectedUser?.filter(u=>u.id !== user?.id)?.map((user: User) =>
+                              <Avatar key={user?.id} src={user?.imageUrl} className="border-black border-[2.5px]" isOnline={true}/>
                          )}
                     </AvatarGroup>
                </div>

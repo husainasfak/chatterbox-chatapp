@@ -16,12 +16,12 @@ export enum UserAccess {
 }
 
 export type ChatType = {
-  id: string;
+  id: string | null;
   content: string;
   fileUrl?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  isDeleted: boolean;
+  createdAt: string | number | Date;
+  updatedAt?: string | number | Date ;
+  isDeleted: boolean | null;
   conversationId: string;
   senderId: string;
   receiverId: string;

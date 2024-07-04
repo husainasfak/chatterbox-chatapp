@@ -9,6 +9,8 @@ import { useNavigate } from 'react-router-dom'
 import { Loader } from './Loader'
 import toast from "react-hot-toast";
 import useDebounce from '../hooks/useDebounce'
+import { useAuth } from '../context/UserProvider'
+import { UserAccess } from '../types'
 
 
 const containerVariants = {
@@ -41,6 +43,7 @@ const Signin = () => {
      const [showPassword, setShowPassword] = useState(false)
      const [loadingUserCheck, setLoadingUserCheck] = useState(false)
      const [password, setPassword] = useState('')
+     const {setAccess} = useAuth()
      const handleUsernameChange = async () => {
 
 
@@ -92,6 +95,7 @@ const Signin = () => {
           })
           if (data) {
                if (data.success) {
+                    setAccess(UserAccess.GRANTED)
                     naviagte('/')
                } else {
                     toast.error(data.message)

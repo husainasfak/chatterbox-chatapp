@@ -12,7 +12,8 @@ interface User {
 interface UserContextType {
      user: User | null,
      isUserLoading: boolean,
-     access: UserAccess | null
+     access: UserAccess | null,
+     setAccess: React.Dispatch<React.SetStateAction<UserAccess | null>>
 
 }
 interface ProviderProps {
@@ -49,7 +50,7 @@ export const UserProvider: React.FC<ProviderProps> = ({ children }) => {
 
 
      return (
-          <UserContext.Provider value={{ user, isUserLoading, access }}>
+          <UserContext.Provider value={{ user, isUserLoading, access, setAccess }}>
                {children}
           </UserContext.Provider>
      )
