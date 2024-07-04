@@ -81,7 +81,7 @@ export interface PrivateMessage {
   // sender: User;
   senderId: string;
   // receiver?: User;
-  receiverId?: string;
+  receiverId: string;
   // deletedBy: User;
   // deletedById: string;
 }
