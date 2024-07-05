@@ -24,6 +24,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // init();
 const http_1 = __importDefault(require("http"));
 const socket_1 = __importDefault(require("./services/socket"));
+const kafka_1 = require("./services/kafka");
 const express_1 = __importDefault(require("express"));
 const logger_1 = __importDefault(require("./helpers/logger"));
 const ErrorHandler_1 = __importDefault(require("./helpers/ErrorHandler"));
@@ -61,4 +62,4 @@ socketService.io.attach(httpServer);
 //   Init HTTP Server
 httpServer.listen(PORT, () => console.log(`HTTP SERVER STARTED AT : ${PORT}`));
 socketService.initListeners();
-// startMessageConsumer();
+(0, kafka_1.startMessageConsumer)();

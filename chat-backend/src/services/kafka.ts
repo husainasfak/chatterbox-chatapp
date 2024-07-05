@@ -2,6 +2,7 @@ import { Consumer, Kafka, logLevel, Producer } from "kafkajs";
 import prismaClient from "./db";
 import fs from "fs";
 import path from "path";
+import MessageService from "./message";
 const kafka = new Kafka({
   brokers: ["kafka-28bd53ff-asfakhusain99-66d6.i.aivencloud.com:20486"],
   ssl: {
@@ -46,7 +47,7 @@ export async function produceMessage(message: string) {
 }
 
 export async function startMessageConsumer() {
-  console.log("Consumer is running..");
+  const privateMessage = new MessageService();
   const consumer = kafka.consumer({ groupId: "default" });
   await consumer.connect();
   await consumer.subscribe({ topic: "chat-app", fromBeginning: true });
@@ -54,13 +55,10 @@ export async function startMessageConsumer() {
   await consumer.run({
     eachMessage: async ({ message, pause }) => {
       if (!message.value) return;
-      console.log(`New Message Recv..`);
       try {
-        // await prismaClient.privateMessage.create({
-        //   data: {
-        //     content: message.value?.toString(),
-        //   },
-        // });
+        const messageData = JSON.parse(message.value?.toString())
+
+        await privateMessage.sendMessage(messageData)
       } catch (err) {
         console.log("Something is wrong");
         pause();

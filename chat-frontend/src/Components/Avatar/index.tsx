@@ -5,7 +5,7 @@ type AvatarType = {
      width?: number;
      alt?: string;
      className?: string;
-     isOnline: boolean | null
+     isOnline?: boolean | null
 }
 const Avatar = ({ src, width = 40, alt, className, isOnline }: AvatarType) => {
      return (

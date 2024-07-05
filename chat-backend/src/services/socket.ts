@@ -91,9 +91,11 @@ class SocketService {
       this.handleJoinChat(socket);
       this.handleUserTyping(socket);
 
-      socket.on("new message", (data) => {
+      socket.on("new message", async(data) => {
         console.log('data',data)
-        socket.in(data.receiverId).emit("message recieved", data);
+        
+        await pub.publish("MESSAGES", JSON.stringify(data));
+
         // if (!chat.users) return console.log("chat.users not defined");
 
         // chat.users.forEach((user:User) => {
@@ -119,18 +121,20 @@ class SocketService {
       //   io.emit("connected-users", connectedUsers);
       // });
     });
-    // sub.on("message", async (channel, message) => {
-    //   if (channel === "MESSAGES") {
-    //     io.emit("message", message);
-    //     // await prismaClient.message.create({
-    //     //   data: {
-    //     //     text: message,
-    //     //   },
-    //     // });
-    //     produceMessage(message);
-    //     console.log("Message produce by kafka broker");
-    //   }
-    // });
+    sub.on("message", async (channel, message) => {
+      if (channel === "MESSAGES") {
+        const data = JSON.parse(message)
+        io.in(data.receiverId).emit("message recieved", data);
+
+        // await prismaClient.message.create({
+        //   data: {
+        //     text: message,
+        //   },
+        // });
+        produceMessage(message);
+        console.log("Message produce by kafka broker");
+      }
+    });
   }
 }
 

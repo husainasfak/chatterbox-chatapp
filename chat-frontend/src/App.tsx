@@ -7,7 +7,7 @@ import Onboard from "./Components/Onboard"
 import { Toaster } from 'react-hot-toast';
 import Dashboard from "./Components/Dashboard";
 import UserChcek from "./Components/UserChcek";
-
+import './App.css'
 
 const App = () => {
   // const { messages, sendMessage } = useSocket()

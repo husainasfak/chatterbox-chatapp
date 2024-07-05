@@ -8,56 +8,12 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../context/UserProvider";
 import { useSocket } from "../../context/SocketProvider";
 import ChatList from "./GroupMessageByDate";
-
-
+import { MDXEditor, linkPlugin, listsPlugin, markdownShortcutPlugin, quotePlugin } from '@mdxeditor/editor'
+import { headingsPlugin } from '@mdxeditor/editor'
+import '@mdxeditor/editor/style.css'
 type chatBoxProps = {
      selectedConversation: UserType | null;
 }
-
-// const data = [
-//      {
-//           text: 'Hello',
-//           parent: true
-//      },
-//      {
-//           text: 'Hi',
-//           parent: false
-//      },
-//      {
-//           text: 'How are you',
-//           parent: true
-//      },
-//      {
-//           text: 'I am fine, How r u?',
-//           parent: false
-//      },
-//      {
-//           text: 'I am fine, How r u?',
-//           parent: false
-//      },
-//      {
-//           text: 'Hello',
-//           parent: true
-//      },
-//      {
-//           text: 'Hi',
-//           parent: false
-//      },
-//      {
-//           text: 'How are you',
-//           parent: true
-//      },
-//      {
-//           text: 'I am fine, How r u?',
-//           parent: false
-//      },
-//      {
-//           text: 'I am fine, How r u?',
-//           parent: false
-//      },
-// ]
-
-
 
 const ChatBox = ({ selectedConversation }: chatBoxProps) => {
      const [isChatExist, setisChatExist] = useState(false);
@@ -123,13 +79,17 @@ const ChatBox = ({ selectedConversation }: chatBoxProps) => {
                               conversationId: conversation.id,
                               senderId: user.id,
                               receiverId: selectedConversation.id,
-                              createdAt:new Date(),
-                              isDeleted:false
+                              createdAt: new Date(),
+                              isDeleted: false
                          }
                     }
 
-                    setChats([...chat, data])
+                    // setChats([...chat, data])
                     socket.emit("new message", data);
+                    if (conversation && conversation.status === 'PENDING') {
+                         acceptConversation()
+                    }
+                    setMessage('')
                }
 
           } else {
@@ -211,7 +171,7 @@ const ChatBox = ({ selectedConversation }: chatBoxProps) => {
                                                        <ChatMessage key={index} message={message} />
                                                   ))} */}
                                                   {
-                                                       chat && <ChatList messages={chat}/>
+                                                       chat && <ChatList messages={chat} />
                                                   }
 
                                              </div> : <div className="flex items-center justify-center h-full">
@@ -221,6 +181,18 @@ const ChatBox = ({ selectedConversation }: chatBoxProps) => {
 
                                    </div>
                                    <div className="bg-[#ECECED] w-full rounded-lg py-3 px-4">
+                                        {/* <div className="max-h-[60px] overflow-x-auto">
+                                             <MDXEditor
+                                                  markdown={message}
+                                                  plugins={[headingsPlugin(), listsPlugin(), linkPlugin(), quotePlugin(), markdownShortcutPlugin()]}
+                                                  placeholder={`Message to ${selectedConversation?.userName}`}
+                                                  contentEditableClassName="chat-editor w-full py-1"
+                                                  onChange={(content) => setMessage(content)}
+                                             />
+                                        </div> */}
+
+
+
                                         <textarea onKeyDown={(event) => {
                                              if (event.key === 'Enter') {
                                                   if (message === '') {

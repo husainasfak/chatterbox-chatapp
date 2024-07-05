@@ -82,4 +82,4 @@ socketService.io.attach(httpServer);
 httpServer.listen(PORT, () => console.log(`HTTP SERVER STARTED AT : ${PORT}`));
 
 socketService.initListeners();
-// startMessageConsumer();
+startMessageConsumer();

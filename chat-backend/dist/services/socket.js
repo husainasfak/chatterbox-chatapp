@@ -1,10 +1,20 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const socket_io_1 = require("socket.io");
 const ioredis_1 = __importDefault(require("ioredis"));
+const kafka_1 = require("./kafka");
 const pub = new ioredis_1.default("rediss://default:AdZuAAIncDE4YTk2MDQ2YjkxM2M0N2RlYWU2MjM3MjU3ZWFhMTlmOXAxNTQ4OTQ@strong-eagle-54894.upstash.io:6379");
 const sub = new ioredis_1.default("rediss://default:AdZuAAIncDE4YTk2MDQ2YjkxM2M0N2RlYWU2MjM3MjU3ZWFhMTlmOXAxNTQ4OTQ@strong-eagle-54894.upstash.io:6379");
 class SocketService {
@@ -73,15 +83,15 @@ class SocketService {
             this.handleUserConnection(socket);
             this.handleJoinChat(socket);
             this.handleUserTyping(socket);
-            socket.on("new message", (data) => {
+            socket.on("new message", (data) => __awaiter(this, void 0, void 0, function* () {
                 console.log('data', data);
-                socket.in(data.receiverId).emit("message recieved", data);
+                yield pub.publish("MESSAGES", JSON.stringify(data));
                 // if (!chat.users) return console.log("chat.users not defined");
                 // chat.users.forEach((user:User) => {
                 //   if (user.id == newMessageRecieved.sender.id) return;
                 //   socket.in(user.id).emit("message recieved", newMessageRecieved);
                 // });
-            });
+            }));
             // socket.on("event:message", async ({ message }: { message: string }) => {
             //   console.log("Message", message);
             //   // publish this message to redis
@@ -97,18 +107,19 @@ class SocketService {
             //   io.emit("connected-users", connectedUsers);
             // });
         });
-        // sub.on("message", async (channel, message) => {
-        //   if (channel === "MESSAGES") {
-        //     io.emit("message", message);
-        //     // await prismaClient.message.create({
-        //     //   data: {
-        //     //     text: message,
-        //     //   },
-        //     // });
-        //     produceMessage(message);
-        //     console.log("Message produce by kafka broker");
-        //   }
-        // });
+        sub.on("message", (channel, message) => __awaiter(this, void 0, void 0, function* () {
+            if (channel === "MESSAGES") {
+                const data = JSON.parse(message);
+                io.in(data.receiverId).emit("message recieved", data);
+                // await prismaClient.message.create({
+                //   data: {
+                //     text: message,
+                //   },
+                // });
+                (0, kafka_1.produceMessage)(message);
+                console.log("Message produce by kafka broker");
+            }
+        }));
     }
 }
 exports.default = SocketService;

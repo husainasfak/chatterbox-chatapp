@@ -16,6 +16,7 @@ exports.startMessageConsumer = exports.produceMessage = exports.createProducer =
 const kafkajs_1 = require("kafkajs");
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
+const message_1 = __importDefault(require("./message"));
 const kafka = new kafkajs_1.Kafka({
     brokers: ["kafka-28bd53ff-asfakhusain99-66d6.i.aivencloud.com:20486"],
     ssl: {
@@ -62,21 +63,18 @@ function produceMessage(message) {
 exports.produceMessage = produceMessage;
 function startMessageConsumer() {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log("Consumer is running..");
+        const privateMessage = new message_1.default();
         const consumer = kafka.consumer({ groupId: "default" });
         yield consumer.connect();
         yield consumer.subscribe({ topic: "chat-app", fromBeginning: true });
         yield consumer.run({
             eachMessage: (_a) => __awaiter(this, [_a], void 0, function* ({ message, pause }) {
+                var _b;
                 if (!message.value)
                     return;
-                console.log(`New Message Recv..`);
                 try {
-                    // await prismaClient.privateMessage.create({
-                    //   data: {
-                    //     content: message.value?.toString(),
-                    //   },
-                    // });
+                    const messageData = JSON.parse((_b = message.value) === null || _b === void 0 ? void 0 : _b.toString());
+                    yield privateMessage.sendMessage(messageData);
                 }
                 catch (err) {
                     console.log("Something is wrong");
