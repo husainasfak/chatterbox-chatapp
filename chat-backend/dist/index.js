@@ -31,6 +31,8 @@ const ErrorHandler_1 = __importDefault(require("./helpers/ErrorHandler"));
 const apis_1 = __importDefault(require("./apis"));
 const cors_1 = __importDefault(require("cors"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const express_2 = require("uploadthing/express");
+const FileUpload_1 = require("./services/FileUpload");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 // Handle Cors
@@ -51,6 +53,9 @@ app.get("/check", (req, res) => {
     res.send("ALL OK!");
 });
 app.use("/api/v1", apis_1.default);
+app.use("api/uploadthing", (0, express_2.createRouteHandler)({
+    router: FileUpload_1.uploadRouter,
+}));
 app.use(ErrorHandler_1.default);
 // Create http server and attach to express server
 const httpServer = http_1.default.createServer(app);

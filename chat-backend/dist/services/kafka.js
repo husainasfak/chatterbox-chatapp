@@ -14,19 +14,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.startMessageConsumer = exports.produceMessage = exports.createProducer = void 0;
 const kafkajs_1 = require("kafkajs");
-const fs_1 = __importDefault(require("fs"));
-const path_1 = __importDefault(require("path"));
 const message_1 = __importDefault(require("./message"));
+// const kafka = new Kafka({
+//   brokers: ["kafka-28bd53ff-asfakhusain99-66d6.i.aivencloud.com:20486"],
+//   ssl: {
+//     ca: [fs.readFileSync(path.resolve("./ca.pem"), "utf-8")],
+//   },
+//   sasl: {
+//     username: "avnadmin",
+//     password: "AVNS_X6xg_VzNq22LY1yPL9-",
+//     mechanism: "plain",
+//   },
+// });
 const kafka = new kafkajs_1.Kafka({
-    brokers: ["kafka-28bd53ff-asfakhusain99-66d6.i.aivencloud.com:20486"],
-    ssl: {
-        ca: [fs_1.default.readFileSync(path_1.default.resolve("./ca.pem"), "utf-8")],
-    },
-    sasl: {
-        username: "avnadmin",
-        password: "AVNS_X6xg_VzNq22LY1yPL9-",
-        mechanism: "plain",
-    },
+    // brokers: ["kafka-28bd53ff-asfakhusain99-66d6.i.aivencloud.com:20486"],
+    // ssl: {
+    //   ca: [fs.readFileSync(path.resolve("./ca.pem"), "utf-8")],
+    // },
+    // sasl: {
+    //   username: "avnadmin",
+    //   password: "AVNS_X6xg_VzNq22LY1yPL9-",
+    //   mechanism: "plain",
+    // },
+    clientId: 'chattrbox',
+    brokers: ["localhost:9092"]
 });
 // const kafka = new Kafka({
 //   brokers: ["kind-lark-10485-us1-kafka.upstash.io:9092"],

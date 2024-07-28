@@ -35,14 +35,13 @@ class SocketService {
     }
     handleUserConnection(socket) {
         socket.on("user-join", ({ user }) => {
-            console.log("{user}", user);
             const newUser = {
                 socketId: socket.id,
                 userName: user.userName,
                 id: user.id,
                 imageUrl: user.imageUrl,
             };
-            this.connectedUsers.set(socket.id, newUser);
+            this.connectedUsers.set(user.id, newUser);
             this._io.emit("connected-users", Array.from(this.connectedUsers.values()));
         });
         socket.on("disconnect", () => {
@@ -54,6 +53,7 @@ class SocketService {
         socket.on("create-room", (user) => {
             socket.join(user.id);
             socket.emit(`[Connect to room] ${user.id}`);
+            console.log(`[Connect to room] ${user.id}`);
         });
         socket.on("join-room", (room) => {
             socket.join(room);
@@ -62,10 +62,23 @@ class SocketService {
         socket.off("create-room", () => {
             console.log("USER DISCONNECTED");
         });
+        socket.off("join-room", () => {
+            console.log("USER DISCONNECTED");
+        });
     }
     handleUserTyping(socket) {
-        socket.on("typing", (room) => socket.in(room).emit("typing"));
-        socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
+        socket.on("typing", (id) => {
+            const getUser = this.connectedUsers.get(id);
+            if (getUser) {
+                socket.to(getUser.socketId).emit("start typing");
+            }
+        });
+        socket.on("stop typing", (id) => {
+            const getUser = this.connectedUsers.get(id);
+            if (getUser) {
+                socket.to(getUser.socketId).emit("stop typing");
+            }
+        });
     }
     initListeners() {
         const io = this._io;
@@ -78,44 +91,20 @@ class SocketService {
             next();
         });
         io.on("connect", (socket) => {
-            console.log("[SOCKET USER]", socket === null || socket === void 0 ? void 0 : socket.data.user);
-            console.log(`[NEW CONNECTION]`, socket.id);
+            // console.log("[SOCKET USER]", socket?.data.user);
+            // console.log(`[NEW CONNECTION]`, socket.id);
             this.handleUserConnection(socket);
             this.handleJoinChat(socket);
             this.handleUserTyping(socket);
             socket.on("new message", (data) => __awaiter(this, void 0, void 0, function* () {
                 console.log('data', data);
                 yield pub.publish("MESSAGES", JSON.stringify(data));
-                // if (!chat.users) return console.log("chat.users not defined");
-                // chat.users.forEach((user:User) => {
-                //   if (user.id == newMessageRecieved.sender.id) return;
-                //   socket.in(user.id).emit("message recieved", newMessageRecieved);
-                // });
             }));
-            // socket.on("event:message", async ({ message }: { message: string }) => {
-            //   console.log("Message", message);
-            //   // publish this message to redis
-            //   await pub.publish("MESSAGES", JSON.stringify({ message }));
-            // });
-            // Emit all conntected user
-            // const connectedUsers = [];
-            // socket.on("user-join", (user) => {
-            //   connectedUsers.push({
-            //     id: socket.id,
-            //     ...user,
-            //   });
-            //   io.emit("connected-users", connectedUsers);
-            // });
         });
         sub.on("message", (channel, message) => __awaiter(this, void 0, void 0, function* () {
             if (channel === "MESSAGES") {
                 const data = JSON.parse(message);
                 io.in(data.receiverId).emit("message recieved", data);
-                // await prismaClient.message.create({
-                //   data: {
-                //     text: message,
-                //   },
-                // });
                 (0, kafka_1.produceMessage)(message);
                 console.log("Message produce by kafka broker");
             }

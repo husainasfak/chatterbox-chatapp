@@ -29,8 +29,9 @@ import ErrorHandle from "./helpers/ErrorHandler";
 import apiRoutes from "./apis";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { errorHandler, notFound } from "./Middleware/error";
 
+import { createRouteHandler } from "uploadthing/express";
+import { uploadRouter } from "./services/FileUpload";
 const app = express();
 app.use(express.json());
 
@@ -57,6 +58,12 @@ app.get("/check", (req, res) => {
 });
 
 app.use("/api/v1", apiRoutes);
+app.use(
+  "api/uploadthing",
+  createRouteHandler({
+    router: uploadRouter,
+  })
+);
 app.use(ErrorHandle);
 
 declare global {

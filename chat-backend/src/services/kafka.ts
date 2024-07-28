@@ -3,16 +3,29 @@ import prismaClient from "./db";
 import fs from "fs";
 import path from "path";
 import MessageService from "./message";
+// const kafka = new Kafka({
+//   brokers: ["kafka-28bd53ff-asfakhusain99-66d6.i.aivencloud.com:20486"],
+//   ssl: {
+//     ca: [fs.readFileSync(path.resolve("./ca.pem"), "utf-8")],
+//   },
+//   sasl: {
+//     username: "avnadmin",
+//     password: "AVNS_X6xg_VzNq22LY1yPL9-",
+//     mechanism: "plain",
+//   },
+// });
 const kafka = new Kafka({
-  brokers: ["kafka-28bd53ff-asfakhusain99-66d6.i.aivencloud.com:20486"],
-  ssl: {
-    ca: [fs.readFileSync(path.resolve("./ca.pem"), "utf-8")],
-  },
-  sasl: {
-    username: "avnadmin",
-    password: "AVNS_X6xg_VzNq22LY1yPL9-",
-    mechanism: "plain",
-  },
+  // brokers: ["kafka-28bd53ff-asfakhusain99-66d6.i.aivencloud.com:20486"],
+  // ssl: {
+  //   ca: [fs.readFileSync(path.resolve("./ca.pem"), "utf-8")],
+  // },
+  // sasl: {
+  //   username: "avnadmin",
+  //   password: "AVNS_X6xg_VzNq22LY1yPL9-",
+  //   mechanism: "plain",
+  // },
+  clientId:'chattrbox',
+  brokers:["localhost:9092"]
 });
 
 // const kafka = new Kafka({

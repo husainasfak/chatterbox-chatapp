@@ -9,10 +9,9 @@ interface SocketProviderProps {
 interface ISocketContext {
      socket: Socket | null;
      joinUser: (user: User) => void;
-     connectedUser: User[]
-     // sendMessage: (msg: string) => any;
-     // messages: string[]
-
+     connectedUser: User[],
+     setTypingIndicator: React.Dispatch<React.SetStateAction<User[] | []>>,
+     typingIndicator: [] | User[]
 }
 
 const SocketContect = React.createContext<ISocketContext | null>(null);
@@ -21,20 +20,14 @@ const SocketContect = React.createContext<ISocketContext | null>(null);
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
      const [socket, setSocket] = useState<Socket | null>(null)
      const [connectedUser, setConnectedUser] = useState<User[] | []>([])
-     // const [messages, setMessages] = useState<string[]>([])
-     // const sendMessage: ISocketContext["sendMessage"] = useCallback((msg) => {
-     //      if (socket) {
-     //           socket.emit('event:message', { message: msg })
-     //      }
-     // }, [socket])
+     const [typingIndicator, setTypingIndicator] = useState<User[] | []>([])
 
      useEffect(() => {
           const _socket = io('http://localhost:8000', { autoConnect: false })
-          // _socket.on('message', onMessageRec)
           setSocket(_socket)
           return () => {
                _socket.disconnect()
-               // _socket.off('message', onMessageRec)
+
                setSocket(null)
           }
      }, [])
@@ -58,13 +51,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
           }
      }
 
-     // const onMessageRec = useCallback((msg: string) => {
-     //      console.log('From server', msg)
-     //      const message = JSON.parse(msg) as { message: string }
-     //      setMessages((prev) => [...prev, message])
-     // }, [])
      return (
-          <SocketContect.Provider value={{ socket, joinUser, connectedUser }}>
+          <SocketContect.Provider value={{ socket, joinUser, connectedUser, setTypingIndicator, typingIndicator }}>
                {children}
           </SocketContect.Provider>
      )
