@@ -46,7 +46,7 @@ export const UserProvider: React.FC<ProviderProps> = ({ children }) => {
      useEffect(() => {
           setIsUserLoading(true)
           checkUser()
-     }, [])
+     }, [access])
 
 
      return (

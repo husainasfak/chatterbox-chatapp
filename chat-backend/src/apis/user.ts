@@ -95,6 +95,7 @@ router.post("/signin", async (req, res) => {
 
 router.get("/check", authMiddleware, async (req, res) => {
   try {
+    console.log("req.user", req.user);
     if (req.user) {
       return res.json({
         success: true,

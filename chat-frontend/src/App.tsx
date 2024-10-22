@@ -8,6 +8,7 @@ import { Toaster } from 'react-hot-toast';
 import Dashboard from "./Components/Dashboard";
 import UserChcek from "./Components/UserChcek";
 import './App.css'
+import PrivateRoutes from "./Components/PrivateRoutes";
 
 const App = () => {
   // const { messages, sendMessage } = useSocket()
@@ -22,9 +23,13 @@ const App = () => {
       <AnimatePresence mode="wait" >
         <Routes location={location} key={location.pathname}>
           <Route path='/' element={<UserChcek />} />
-          <Route path='/dashboard' element={<Dashboard />} />
           <Route path="/sign-in" element={<Signin />} />
           <Route path="/onboard" element={<Onboard />} />
+          <Route element={<PrivateRoutes />}>
+            <Route path='/dashboard' element={<Dashboard />} />
+
+          </Route>
+
         </Routes>
       </AnimatePresence>
 
