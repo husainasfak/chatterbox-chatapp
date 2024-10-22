@@ -6,6 +6,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../utils/axiosInstance";
 import toast from "react-hot-toast";
 import { Loader } from "./Loader";
+import { UserAccess } from "../types";
+import { useAuth } from "../context/UserProvider";
 
 const avatarContainerVariant = {
      hidden: {
@@ -52,6 +54,7 @@ const containerVariants = {
      }
 }
 const Onboard = () => {
+     const { setAccess } = useAuth()
      const navigate = useNavigate()
      const [showPassword, setShowPassword] = useState(false)
      const [searchParams] = useSearchParams();
@@ -89,6 +92,7 @@ const Onboard = () => {
                })
                if (user) {
                     toast.success('Account created successfully! Enjoy exploring!');
+                    setAccess(UserAccess.GRANTED)
                     navigate('/')
                     setIsSigningIn(false)
                }

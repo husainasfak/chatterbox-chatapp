@@ -32,20 +32,6 @@ const App = () => {
 
         </Routes>
       </AnimatePresence>
-
-
-      {/* <div className="text-3xl">App</div>
-
-      <input type="text" placeholder="Type" className="border" onChange={(e) => setMsg(e.target.value)} />
-      <button onClick={() => {
-        sendMessage(msg)
-      }}>Send</button>
-
-
-      <h1>Messages</h1>
-      {
-        messages?.length > 0 && messages?.map(m => <p>{m.message}</p>)
-      } */}
       <Toaster position="top-center" reverseOrder={false} />
     </>
 
