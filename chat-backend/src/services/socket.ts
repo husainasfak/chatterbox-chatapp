@@ -2,12 +2,8 @@ import { Server, Socket } from "socket.io";
 import Redis from "ioredis";
 import { produceMessage } from "./kafka";
 import { SocketUser, User } from "../types/types";
-const pub = new Redis(
-  "rediss://default:AdZuAAIncDE4YTk2MDQ2YjkxM2M0N2RlYWU2MjM3MjU3ZWFhMTlmOXAxNTQ4OTQ@strong-eagle-54894.upstash.io:6379"
-);
-const sub = new Redis(
-  "rediss://default:AdZuAAIncDE4YTk2MDQ2YjkxM2M0N2RlYWU2MjM3MjU3ZWFhMTlmOXAxNTQ4OTQ@strong-eagle-54894.upstash.io:6379"
-);
+const pub = new Redis(process.env.RedisURL!);
+const sub = new Redis(process.env.RedisURL!);
 class SocketService {
   private _io: Server;
   private connectedUsers: Map<string, SocketUser> = new Map();

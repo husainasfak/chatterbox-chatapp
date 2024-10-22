@@ -4,10 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsc-watch --onSuccess \"node dist/index.js\"",
+    "dev0": "tsc-watch --onSuccess \"node dist/index.js\"",
+    "dev": "nodemon",
     "start": "node dist/index.js",
     "build": "tsc -p .",
-    "db:migrate": "npx prisma migrate dev --name init"
+    "db:migrate": "npx prisma migrate dev --name init",
+    "db:generate":"npx prisma generate"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +23,7 @@
     "@types/node": "^20.14.2",
     "nodemon": "^3.1.3",
     "prisma": "^5.15.0",
+    "ts-node": "^10.9.2",
     "tsc-watch": "^6.2.0",
     "typescript": "^5.4.5"
   },
