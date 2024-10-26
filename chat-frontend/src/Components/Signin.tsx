@@ -35,7 +35,7 @@ interface ErrorState {
      message: string | null;
 }
 const Signin = () => {
-     const naviagte = useNavigate()
+     const navigate = useNavigate()
      const [userName, setUserName] = useState('');
      const debouncedUserName = useDebounce(userName)
      const [error, setError] = useState<ErrorState>({ state: false, message: null })
@@ -44,12 +44,13 @@ const Signin = () => {
      const [loadingUserCheck, setLoadingUserCheck] = useState(false)
      const [password, setPassword] = useState('')
      const {setAccess} = useAuth()
+
+     const { user, isUserLoading, access } = useAuth();
+     useEffect(() => {
+          if (!isUserLoading && access === UserAccess.GRANTED && user) navigate('/dashboard')
+     }, [user, isUserLoading, access])
      const handleUsernameChange = async () => {
-
-
           const isSafe = userNameSchema.safeParse(debouncedUserName);
-
-
           setError({
                state: isSafe.success,
                message: fromError(isSafe.error).message.split(":")[1]
@@ -96,14 +97,14 @@ const Signin = () => {
           if (data) {
                if (data.success) {
                     setAccess(UserAccess.GRANTED)
-                    naviagte('/')
+                    navigate('/')
                } else {
                     toast.error(data.message)
                }
           }
      }
      const createUser = async () => {
-          naviagte(`/onboard?user=${userName}`)
+          navigate(`/onboard?user=${userName}`)
      }
      return (
           <motion.div className="flex justify-center items-center h-full" variants={containerVariants}

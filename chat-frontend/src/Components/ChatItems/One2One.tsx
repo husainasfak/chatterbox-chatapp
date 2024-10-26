@@ -29,7 +29,7 @@ const One2One = ({ chats, selectedConversation, setSelectedConversation }: Props
                               isOnline(chat.id) ? <div className="flex items-center gap-1">
                                    <div className="w-[8px] h-[8px] bg-green-700 rounded-full"></div>
                                    <p className="text-xs text-gray-400">online</p>
-                              </div> : <p className="text-xs text-gray-400">last online at </p>
+                              </div> : null
                          }
 
                     </div>

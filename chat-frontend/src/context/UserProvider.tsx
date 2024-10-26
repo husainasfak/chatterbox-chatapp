@@ -28,6 +28,7 @@ export const UserProvider: React.FC<ProviderProps> = ({ children }) => {
      const [isUserLoading, setIsUserLoading] = useState(false)
      const [access, setAccess] = useState<UserAccess | null>(null)
      const checkUser = async () => {
+          setIsUserLoading(true)
           try {
                const { data } = await api.get('/user/check');
 
@@ -38,15 +39,15 @@ export const UserProvider: React.FC<ProviderProps> = ({ children }) => {
                }
           } catch (err) {
                console.log(err)
-               setIsUserLoading(false)
                setAccess(UserAccess.DENIED)
+               setIsUserLoading(false)
           }
      }
 
      useEffect(() => {
-          setIsUserLoading(true)
+
           checkUser()
-     }, [access])
+     }, [])
 
 
      return (

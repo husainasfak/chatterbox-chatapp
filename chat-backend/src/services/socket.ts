@@ -4,6 +4,12 @@ import { produceMessage } from "./kafka";
 import { SocketUser, User } from "../types/types";
 const pub = new Redis(process.env.RedisURL!);
 const sub = new Redis(process.env.RedisURL!);
+
+function getUserId(users: Map<string, SocketUser>, socketId: string) {
+  for (let [key, user] of users.entries()) {
+    if(user.socketId === socketId) return key
+  }
+}
 class SocketService {
   private _io: Server;
   private connectedUsers: Map<string, SocketUser> = new Map();
@@ -25,6 +31,7 @@ class SocketService {
 
   private handleUserConnection(socket: Socket) {
     socket.on("user-join", ({ user }: { user: SocketUser }) => {
+      console.log("USER JOINED", user);
       const newUser = {
         socketId: socket.id,
         userName: user.userName,
@@ -39,7 +46,9 @@ class SocketService {
     });
 
     socket.on("disconnect", () => {
-      this.connectedUsers.delete(socket.id);
+      const userId = getUserId(this.connectedUsers, socket.id);
+      this.connectedUsers.delete(userId!);
+      console.log('User left',userId)
       this._io.emit(
         "connected-users",
         Array.from(this.connectedUsers.values())
@@ -51,7 +60,7 @@ class SocketService {
     socket.on("create-room", (user: User) => {
       socket.join(user.id);
       socket.emit(`[Connect to room] ${user.id}`);
-      console.log(`[Connect to room] ${user.id}`)
+      console.log(`[Connect to room] ${user.id}`);
     });
 
     socket.on("join-room", (room) => {
@@ -68,16 +77,15 @@ class SocketService {
 
   private handleUserTyping(socket: Socket) {
     socket.on("typing", (id) => {
-      const getUser = this.connectedUsers.get(id)
-      if(getUser){
-        socket.to(getUser.socketId).emit("start typing")
+      const getUser = this.connectedUsers.get(id);
+      if (getUser) {
+        socket.to(getUser.socketId).emit("start typing");
       }
-      
     });
     socket.on("stop typing", (id) => {
-      const getUser = this.connectedUsers.get(id)
-      if(getUser){
-        socket.to(getUser.socketId).emit("stop typing")
+      const getUser = this.connectedUsers.get(id);
+      if (getUser) {
+        socket.to(getUser.socketId).emit("stop typing");
       }
     });
   }
@@ -101,15 +109,15 @@ class SocketService {
       this.handleJoinChat(socket);
       this.handleUserTyping(socket);
 
-      socket.on("new message", async(data) => {
-        console.log('data',data)
-        
+      socket.on("new message", async (data) => {
+        console.log("data", data);
+
         await pub.publish("MESSAGES", JSON.stringify(data));
       });
     });
     sub.on("message", async (channel, message) => {
       if (channel === "MESSAGES") {
-        const data = JSON.parse(message)
+        const data = JSON.parse(message);
         io.in(data.receiverId).emit("message recieved", data);
         produceMessage(message);
         console.log("Message produce by kafka broker");

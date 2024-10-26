@@ -7,7 +7,6 @@ import { UserAccess } from "../types";
 const UserChcek = () => {
      const navigate = useNavigate()
      const { user, isUserLoading, access } = useAuth();
-     console.log('user', user)
      useEffect(() => {
           if (!isUserLoading && access === UserAccess.GRANTED && user) {
                navigate('/dashboard')
