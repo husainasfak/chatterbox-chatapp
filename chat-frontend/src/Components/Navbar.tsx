@@ -1,4 +1,4 @@
-import { BotMessageSquare, Rss } from "lucide-react"
+import { BellElectric, BotMessageSquare } from "lucide-react"
 import { useAuth } from "../context/UserProvider"
 import Avatar from "./Avatar"
 import Logo from "./Logo"
@@ -26,7 +26,7 @@ const Navbar = () => {
                </div>
                {
                     user && <div className="flex items-center gap-5">
-                         <Rss className="cursor-pointer"/>
+                         <BellElectric className="cursor-pointer"/>
                          <Avatar src={user?.imageUrl} />
                     </div>
                }

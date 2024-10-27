@@ -1,5 +1,6 @@
 
 import { useSocket } from "../../context/SocketProvider";
+import { useAuth } from "../../context/UserProvider";
 import { UserType } from "../../types";
 import Avatar from "../Avatar";
 
@@ -11,6 +12,7 @@ type Props = {
 }
 
 const One2One = ({ chats, selectedConversation, setSelectedConversation }: Props) => {
+     const {user} = useAuth()
      const { connectedUser } = useSocket()
      const isOnline = (id:string) => {
           const online = connectedUser.find(user => user.id === id)
@@ -21,7 +23,7 @@ const One2One = ({ chats, selectedConversation, setSelectedConversation }: Props
      }
      return (
           <>
-               {chats.map(chat => <div key={chat?.id} className={`transition-all delay-75 pl-4 py-1 cursor-pointer flex items-center gap-5 my-2  ${selectedConversation?.id === chat.id ? 'bg-[#000] text-white rounded-md' : 'hover:bg-[#2751ac13]'}`} onClick={() => setSelectedConversation(chat)}>
+               {chats.filter(chat=>chat.id !== user?.id).map(chat => <div key={chat?.id} className={`transition-all delay-75 pl-4 py-1 cursor-pointer flex items-center gap-5 my-2  ${selectedConversation?.id === chat.id ? 'bg-[#000] text-white rounded-md' : 'hover:bg-[#2751ac13]'}`} onClick={() => setSelectedConversation(chat)}>
                     <Avatar src={chat?.imageUrl} />
                     <div>
                          <p className="text-lg">{chat?.userName}</p>

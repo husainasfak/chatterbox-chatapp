@@ -9,7 +9,6 @@ const ChatMessage = ({ message }: { message: ChatType }) => {
           {
                message && <div className={`py-2 flex ${user?.id !== message.senderId ? 'justify-start' : 'justify-end'}`}>
                     <div>
-
                          <div className={`max-w-xs p-2 px-4 rounded-xl text-[14px] flex items-end ${user?.id !== message.senderId ? 'bg-primary text-white rounded-tl-none' : 'bg-white text-black rounded-br-none '}`}>
                               <div>
                                    {message.content}

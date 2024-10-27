@@ -6,12 +6,17 @@ interface SocketProviderProps {
      children?: React.ReactNode
 }
 
+interface TypingUser extends User {
+     isTyping: boolean;  // New field
+}
+
 interface ISocketContext {
      socket: Socket | null;
      joinUser: (user: User) => void;
      connectedUser: User[],
      setTypingIndicator: React.Dispatch<React.SetStateAction<User[] | []>>,
-     typingIndicator: [] | User[]
+     typingIndicator: [] | User[],
+     typingUser:TypingUser | null
 }
 
 const SocketContect = React.createContext<ISocketContext | null>(null);
@@ -32,16 +37,26 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
           }
      }, [])
 
+
+     const [typingUser,setTypingUser] = useState<TypingUser | null>(null)
+
      useEffect(() => {
           if (socket) {
                socket.on('connected-users', (users: User[]) => {
                     setConnectedUser(users);
                });
+               socket?.on('typingStatus', (user: TypingUser) => {
+                    setTypingUser(user);
+                    
+                    // Clear typing status after 2 seconds of no updates
+                    setTimeout(() => {
+                      setTypingUser(null);
+                    }, 2000);
+               });
           }
-
-
           return () => {
                socket?.off('connected-users');
+               socket?.off('typingStatus');
           };
      }, [socket]);
 
@@ -52,7 +67,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
      }
 
      return (
-          <SocketContect.Provider value={{ socket, joinUser, connectedUser, setTypingIndicator, typingIndicator }}>
+          <SocketContect.Provider value={{ socket, joinUser, connectedUser, setTypingIndicator, typingIndicator,typingUser }}>
                {children}
           </SocketContect.Provider>
      )

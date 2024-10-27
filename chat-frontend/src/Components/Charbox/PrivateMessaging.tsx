@@ -4,7 +4,7 @@ import Avatar from "../Avatar";
 
 import TypeWriteLoader from "../TypeWriteLoader";
 import api from "../../utils/axiosInstance";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../context/UserProvider";
 import { useSocket } from "../../context/SocketProvider";
 import ChatList from "./GroupMessageByDate";
@@ -23,8 +23,10 @@ const PrivateMessaging = ({ selectedConversation }: chatBoxProps) => {
     const [chat, setChats] = useState<ChatType[] | []>([])
     const { user } = useAuth()
     const { socket } = useSocket()
-    // const [socketConnected, setSocketConnected] = useState(false);
-    const [isTyping, setIsTyping] = useState(false)
+
+    const typingTimeout = useRef<NodeJS.Timeout | null>();
+
+    
     const acceptConversation = async () => {
         const { data } = await api.post(`/private-conversation/accept`, {
             conversationId: conversation?.id
@@ -33,6 +35,8 @@ const PrivateMessaging = ({ selectedConversation }: chatBoxProps) => {
             console.log(data)
         }
     }
+
+
     const getConversation = async () => {
         const { data } = await api.get(`/private-conversation/exist/${selectedConversation?.id}`);
         if (data?.success) {
@@ -109,45 +113,42 @@ const PrivateMessaging = ({ selectedConversation }: chatBoxProps) => {
     useEffect(() => {
         socket?.on("message recieved", (newMessageRecieved) => {
             setChats([...chat, newMessageRecieved])
-            // if (
-            //      !selectedChatCompare || // if chat is not selected or doesn't match current chat
-            //      selectedChatCompare._id !== newMessageRecieved.chat._id
-            // ) {
-            //      if (!notification.includes(newMessageRecieved)) {
-            //           setNotification([newMessageRecieved, ...notification]);
-            //           setFetchAgain(!fetchAgain);
-            //      }
-            // } else {
-            //      setMessages([...messages, newMessageRecieved]);
-            // }
         });
-        socket?.on("start typing", () => setIsTyping(true));
-        socket?.on("stop typing", () => setIsTyping(false));
     });
 
     const handleMessageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setMessage(e.target.value)
-        if (socket) {
-            if (!isTyping) {
-                const id = selectedConversation?.id
-                setIsTyping(true);
-                socket.emit("typing", id);
-            }
 
-            const lastTypingTime = new Date().getTime();
-            const timerLength = 3000;
-            setTimeout(() => {
-                console.log('stopping')
-                const timeNow = new Date().getTime();
-                const timeDiff = timeNow - lastTypingTime;
-                if (timeDiff >= timerLength && isTyping) {
-                    socket.emit("stop typing", selectedConversation?.id);
-                    setIsTyping(false);
-                }
-            }, timerLength);
+        // Clear existing timeout
+        if (typingTimeout.current) {
+            clearTimeout(typingTimeout.current);
         }
 
+        if (socket) {
+            // Emit typing status
+            socket.emit('typing', { id: selectedConversation?.id, isTyping: true });
+
+            // Set timeout to stop typing indicator
+            typingTimeout.current = setTimeout(() => {
+                socket.emit('typing', { id: selectedConversation?.id, isTyping: false });
+            }, 1000);
+        }
     }
+
+
+    // Cleanup timeouts on unmount
+    useEffect(() => {
+        return () => {
+            if (typingTimeout.current) {
+                clearTimeout(typingTimeout.current);
+            }
+        };
+    }, []);
+
+
+    
+
+
     return (
         <>
             {
@@ -158,11 +159,8 @@ const PrivateMessaging = ({ selectedConversation }: chatBoxProps) => {
                             {
                                 selectedConversation?.userName
                             }
-                            {
-                                isTyping && 'Typingggg'
-                            }
                         </p>
-
+                        
                     </div>
                     <div className="flex-1 mt-4">
                         <div className="flex flex-col gap-2 justify-between max-h-[510px] ">
@@ -174,9 +172,7 @@ const PrivateMessaging = ({ selectedConversation }: chatBoxProps) => {
                                             <div className="flex items-center gap-4">
                                                 <button className="px-4 py-2 border text-black rounded-lg w-[85px] h-[40px] flex justify-center items-center disabled:bg-gray-600 cursor-pointer" onClick={handleChatDecline}>Decline</button>
                                                 <button className="px-4 py-2 bg-primary text-white rounded-lg w-[85px] h-[40px] flex justify-center items-center disabled:bg-gray-600 cursor-pointer" onClick={handleChatAccpet}>Accept</button>
-
                                             </div>
-
                                         </div>
                                     }
                                 </div>
@@ -191,7 +187,7 @@ const PrivateMessaging = ({ selectedConversation }: chatBoxProps) => {
                                         <p className="text-lg">Start conversation with  {selectedConversation?.userName}</p>
                                     </div>
                                 }
-
+                                        
                             </div>
                             <div className="bg-[#ECECED] w-full rounded-lg py-3 px-4">
 

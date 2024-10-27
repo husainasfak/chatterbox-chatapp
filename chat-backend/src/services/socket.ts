@@ -7,7 +7,7 @@ const sub = new Redis(process.env.RedisURL!);
 
 function getUserId(users: Map<string, SocketUser>, socketId: string) {
   for (let [key, user] of users.entries()) {
-    if(user.socketId === socketId) return key
+    if (user.socketId === socketId) return key;
   }
 }
 class SocketService {
@@ -48,7 +48,7 @@ class SocketService {
     socket.on("disconnect", () => {
       const userId = getUserId(this.connectedUsers, socket.id);
       this.connectedUsers.delete(userId!);
-      console.log('User left',userId)
+      console.log("User left", userId);
       this._io.emit(
         "connected-users",
         Array.from(this.connectedUsers.values())
@@ -76,17 +76,12 @@ class SocketService {
   }
 
   private handleUserTyping(socket: Socket) {
-    socket.on("typing", (id) => {
+    socket.on("typing", ({ id, isTyping }) => {
       const getUser = this.connectedUsers.get(id);
-      if (getUser) {
-        socket.to(getUser.socketId).emit("start typing");
-      }
-    });
-    socket.on("stop typing", (id) => {
-      const getUser = this.connectedUsers.get(id);
-      if (getUser) {
-        socket.to(getUser.socketId).emit("stop typing");
-      }
+      socket.to(getUser?.socketId!).emit("typingStatus", {
+        ...getUser,
+        isTyping
+      });
     });
   }
 

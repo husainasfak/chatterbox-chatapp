@@ -4,10 +4,14 @@ import { format } from "date-fns";
 import ChatMessage from "./ChatMessage";
 import { cn } from "../../utils/tailwind-utils";
 import { useEffect, useRef } from "react";
+import TypingLoader from "../TypingLoader";
+import { useSocket } from "@/context/SocketProvider";
+import { useAuth } from "@/context/UserProvider";
 
 const ChatList = ({ messages }: { messages: ChatType[] }) => {
-
-    const lastMessageRef = useRef<HTMLDivElement>(null);
+  const { typingUser } = useSocket();
+  const { user } = useAuth()
+  const lastMessageRef = useRef<HTMLDivElement>(null);
   const groupedMessages = messages.reduce((acc, message) => {
     const date = format(new Date(message.createdAt), "yyyy-MM-dd");
     if (!acc[date]) {
@@ -19,7 +23,7 @@ const ChatList = ({ messages }: { messages: ChatType[] }) => {
 
   useEffect(() => {
     if (lastMessageRef && lastMessageRef.current) {
-        lastMessageRef.current?.scrollIntoView({ behavior: 'smooth' })
+      lastMessageRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
   }, [messages]);
 
@@ -33,9 +37,22 @@ const ChatList = ({ messages }: { messages: ChatType[] }) => {
           {messages.map(message => (
             <ChatMessage key={message.id} message={message} />
           ))}
+
+          {
+            typingUser?.id === user?.id && typingUser?.isTyping && <div className={`py-2 flex justify-start`}>
+              <div>
+                <div className={`max-w-xs py-3 px-4 rounded-xl text-[14px] flex items-end bg-primary text-white rounded-tl-none`}>
+                  <div>
+                    <TypingLoader />
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
         </div>
       ))}
-      <div ref={lastMessageRef}/>
+      <div ref={lastMessageRef} />
     </div>
   );
 };
